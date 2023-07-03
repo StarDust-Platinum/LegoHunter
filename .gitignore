@@ -1,0 +1,5 @@
+*.log
+LegoHunter/__pycache__/
+crawler/__pycache__/
+crawler/db_settings.txt
+crawler/set_id_list.txt
