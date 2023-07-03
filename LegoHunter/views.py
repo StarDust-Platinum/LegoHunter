@@ -1,12 +1,13 @@
 from django.shortcuts import render
 import pymysql
+import LegoHunter.settings as settings
 
 def index(request):
     context = {}
     connection = pymysql.connect(host="localhost",
-                                user="lego_administrator",
-                                passwd="Gundam0093",
-                                database="lego",
+                                user=settings.DB_USER,
+                                passwd=settings.DB_PW,
+                                database=settings.DB_NAME,
                                 charset="utf8",
                                 cursorclass=pymysql.cursors.DictCursor)
     with connection:
