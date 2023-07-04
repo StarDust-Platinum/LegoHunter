@@ -1,6 +1,6 @@
-*.log
 LegoHunter/__pycache__/
-LegoHunter/settings,py
+LegoHunter/settings.py
 crawler/__pycache__/
 crawler/db_settings.txt
 crawler/set_id_list.txt
+db.sqlite3
