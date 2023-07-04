@@ -42,11 +42,7 @@ if __name__=="__main__":
                             cursor.execute("INSERT INTO lego_item (set_id, title, price, url, last_updated) VALUES ('{}', '{}', '{}', '{}', '{}')".format(lego_item_row['set_id'], lego_item_row['title'],
                                                                                                                                                             lego_item_row['price'], lego_item_row['url'],
                                                                                                                                                             datetime.now()))
+                "DELETE PAST ITEMS"
+                cursor.execute("DELETE FROM lego_item WHERE last_updated < NOW() - INTERVAL 1 DAY")
             connection.commit()
         print(set_id+" completed")
-    
-    "DELETE PAST ITEMS"
-    with connection:
-        with connection.cursor() as cursor:
-            cursor.execute("DELETE FROM lego_item WHERE last_updated < NOW() - INTERVAL 1 DAY")
-        connection.commit()
