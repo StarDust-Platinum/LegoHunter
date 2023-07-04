@@ -17,9 +17,9 @@ if __name__=="__main__":
                                database=db_name,
                                charset="utf8",
                                cursorclass=pymysql.cursors.DictCursor)
+        "UPDATE DB"
         with connection:
             with connection.cursor() as cursor:
-
                 """
                 UPDATE lego_set
                 """
@@ -44,3 +44,9 @@ if __name__=="__main__":
                                                                                                                                                             datetime.now()))
             connection.commit()
         print(set_id+" completed")
+    
+    "DELETE PAST ITEMS"
+    with connection:
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM lego_item WHERE last_updated < NOW() - INTERVAL 1 DAY")
+        connection.commit()
