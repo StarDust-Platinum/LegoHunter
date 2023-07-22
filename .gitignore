@@ -1,5 +1,7 @@
-LegoHunter/__pycache__/
 LegoHunter/settings.py
+LegoHunter/__pycache__/
+items/__pycache__/
+items/migrations/
 crawler/__pycache__/
 crawler/db_settings.txt
 crawler/set_id_list.txt

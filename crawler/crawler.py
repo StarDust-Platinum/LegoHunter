@@ -50,7 +50,7 @@ def crawl_item_from_mercari(set_id):
     bs = BeautifulSoup(driver.page_source, "html.parser")
     try:
         while uncrawled_page:
-            for itm in bs.find_all("a", class_="sc-295d2608-2 cyhDfc"):
+            for itm in bs.find_all("a", class_="sc-f9b0f7ab-2 gfwMYx"):
                 title = itm.find("div", class_="imageContainer__f8ddf3a2")["aria-label"][:-6]
                 if "互換" in title:
                     continue
