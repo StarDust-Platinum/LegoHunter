@@ -1,11 +1,12 @@
 from datetime import datetime
 from crawler import crawl_set, crawl_item_from_mercari, crawl_item_from_paypay
 import MySQLdb
+import os
 
 if __name__=="__main__":
-    with open("db_settings.txt") as f:
+    with open(os.path.dirname(os.path.realpath(__file__))+"/db_settings.txt") as f:
         [db_user, db_pw, db_name,] = [line[:-1] for line in f.readlines() if line != '']
-    with open("set_id_list.txt") as f:
+    with open(os.path.dirname(os.path.realpath(__file__))+"/set_id_list.txt") as f:
         set_id_list = [set_id [:-1] for set_id in f.readlines() if set_id != '']
     for set_id in set_id_list:
         lego_set_row = crawl_set(set_id)
