@@ -26,7 +26,7 @@ def crawl_set(set_id):
             else:
                 value = retail
     except AttributeError:
-        driver.close()
+        driver.quit()
         return None
     lego_set_row = {
         "set_id": set_id,
@@ -38,7 +38,7 @@ def crawl_set(set_id):
         "retail": retail,
         "value": value
     }
-    driver.close()
+    driver.quit()
     return lego_set_row
 
 def crawl_item_from_mercari(set_id):
@@ -73,9 +73,9 @@ def crawl_item_from_mercari(set_id):
             else:
                 uncrawled_page = False
     except AttributeError:
-        driver.close()
+        driver.quit()
         return None
-    driver.close()
+    driver.quit()
     return lego_item_rows
 
 def crawl_item_from_paypay(set_id):
@@ -112,9 +112,9 @@ def crawl_item_from_paypay(set_id):
             else:
                 uncrawled_page = False
     except AttributeError:
-        driver.close()
+        driver.quit()
         return None
-    driver.close()
+    driver.quit()
     return lego_item_rows
 
 def crawl_item_from_rakuma(set_id):
@@ -149,9 +149,9 @@ def crawl_item_from_rakuma(set_id):
             else:
                 uncrawled_page = False
     except AttributeError:
-        driver.close()
+        driver.quit()
         return None
-    driver.close()
+    driver.quit()
     return lego_item_rows
 
 def crawl_item_from_yafuoku(set_id):
@@ -186,8 +186,8 @@ def crawl_item_from_yafuoku(set_id):
             else:
                 uncrawled_page = False
     except AttributeError:
-        driver.close()
+        driver.quit()
         return None
-    driver.close()
+    driver.quit()
     return lego_item_rows
 
