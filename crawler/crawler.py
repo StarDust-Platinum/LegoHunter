@@ -1,4 +1,5 @@
 import time
+import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -6,12 +7,18 @@ from selenium.webdriver.chrome.options import Options
 #from selenium.webdriver import ActionChains
 
 def crawl_set(set_id):
-    options = Options()
-    options.add_argument("--headless=new")
-    driver = webdriver.Chrome(options=options)
-    driver.get("https://www.brickeconomy.com/search?query={}".format(set_id))
-    time.sleep(1)
-    bs = BeautifulSoup(driver.page_source, "html.parser")
+    #options = Options()
+    #options.add_argument("--headless=new")
+    #driver = webdriver.Chrome(options=options)
+    #driver.get("https://www.brickeconomy.com/search?query={}".format(set_id))
+    #time.sleep(1)
+    #bs = BeautifulSoup(driver.page_source, "html.parser")
+    headers={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"}
+    try:
+        req = requests.get("https://www.brickeconomy.com/search?query={}".format(set_id), headers=headers)
+    except requests.exceptions.RequestException:
+        return None
+    bs = BeautifulSoup(req.text, "html.parser")
     try:
         table = bs.find(id="ContentPlaceHolder1_ctlSetsOverview_GridViewSets")
         if table.find("td", {"class":{"ctlsets-left"}}).div.get_text()[:5] == set_id:    
@@ -26,7 +33,7 @@ def crawl_set(set_id):
             else:
                 value = retail
     except AttributeError:
-        driver.quit()
+        #driver.quit()
         return None
     lego_set_row = {
         "set_id": set_id,
@@ -38,7 +45,7 @@ def crawl_set(set_id):
         "retail": retail,
         "value": value
     }
-    driver.quit()
+    #driver.quit()
     return lego_set_row
 
 def crawl_item_from_mercari(set_id):
@@ -81,12 +88,18 @@ def crawl_item_from_mercari(set_id):
 def crawl_item_from_paypay(set_id):
     lego_item_rows = []
     uncrawled_page = True
-    options = Options()
-    options.add_argument("--headless=new")
-    driver = webdriver.Chrome(options=options)
-    driver.get("https://paypayfleamarket.yahoo.co.jp/search/LEGO%20{}?conditions=NEW&open=1".format(set_id))
-    time.sleep(1)
-    bs = BeautifulSoup(driver.page_source, "html.parser")
+    #options = Options()
+    #options.add_argument("--headless=new")
+    #driver = webdriver.Chrome(options=options)
+    #driver.get("https://paypayfleamarket.yahoo.co.jp/search/LEGO%20{}?conditions=NEW&open=1".format(set_id))
+    #time.sleep(1)
+    #bs = BeautifulSoup(driver.page_source, "html.parser")
+    headers={"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"}
+    try:
+        req = requests.get("https://paypayfleamarket.yahoo.co.jp/search/LEGO%20{}?conditions=NEW&open=1".format(set_id), headers=headers)
+    except requests.exceptions.RequestException:
+        return None
+    bs = BeautifulSoup(req.text, "html.parser")
     try:
         while uncrawled_page:
             for itm in bs.find(id="itm").find_all("a"):
@@ -105,16 +118,16 @@ def crawl_item_from_paypay(set_id):
             last_li = bs.find("ul", class_="sc-2300bd7f-1 kTZkbX").find_all("li")[-1]
             if last_li.get_text()==" 次へ ":
                 time.sleep(10)
-                driver.get("https://paypayfleamarket.yahoo.co.jp"+last_li.find("a")["href"])
+                #driver.get("https://paypayfleamarket.yahoo.co.jp"+last_li.find("a")["href"])
                 print("https://paypayfleamarket.yahoo.co.jp"+last_li.find("a")["href"])
                 time.sleep(1)
                 bs = BeautifulSoup(driver.page_source, "html.parser")
             else:
                 uncrawled_page = False
     except AttributeError:
-        driver.quit()
+        #driver.quit()
         return None
-    driver.quit()
+    #driver.quit()
     return lego_item_rows
 
 def crawl_item_from_rakuma(set_id):

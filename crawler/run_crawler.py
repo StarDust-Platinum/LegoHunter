@@ -11,13 +11,14 @@ if __name__=="__main__":
     for set_id in set_id_list:
         lego_set_row = crawl_set(set_id)
         lego_item_rows = []
+        """
         rows = crawl_item_from_mercari(set_id)
         if rows:
             lego_item_rows += rows
+        """
         rows = crawl_item_from_paypay(set_id)
         if rows:
             lego_item_rows += rows
-        
         connection = MySQLdb.connect(
             user=db_user,
             passwd=db_pw,
