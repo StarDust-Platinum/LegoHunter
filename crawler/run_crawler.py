@@ -1,7 +1,8 @@
-from datetime import datetime
-from crawler import crawl_set, crawl_item_from_mercari, crawl_item_from_paypay
-import MySQLdb
 import os
+from datetime import datetime
+import MySQLdb
+from crawler import crawl_set, crawl_amazonjp, crawl_rakuten, crawl_mercari, crawl_paypayfurima
+
 
 if __name__=="__main__":
     with open(os.path.dirname(os.path.realpath(__file__))+"/db_settings.txt") as f:
@@ -11,14 +12,11 @@ if __name__=="__main__":
     for set_id in set_id_list:
         lego_set_row = crawl_set(set_id)
         lego_item_rows = []
-        """
-        rows = crawl_item_from_mercari(set_id)
-        if rows:
-            lego_item_rows += rows
-        """
-        rows = crawl_item_from_paypay(set_id)
-        if rows:
-            lego_item_rows += rows
+        lego_item_rows += crawl_amazonjp(set_id)
+        lego_item_rows += crawl_rakuten(set_id)
+        lego_item_rows += crawl_mercari(set_id)
+        lego_item_rows += crawl_paypayfurima(set_id)
+
         connection = MySQLdb.connect(
             user=db_user,
             passwd=db_pw,
@@ -26,27 +24,37 @@ if __name__=="__main__":
             db=db_name,
             charset="utf8")
         cursor = connection.cursor()
+
+        #UPDATE lego set info
+        keys = lego_set_row.keys()
         cursor.execute("SELECT COUNT(*) FROM lego_set WHERE set_id={}".format(set_id))
-        #UPDATE lego_item
-        if cursor.fetchone()[0] != 0:
-            cursor.execute("UPDATE lego_set SET value='{}', last_updated='{}' WHERE set_id='{}'".format(lego_set_row["value"], datetime.now(), lego_set_row["set_id"]))
+        if cursor.fetchone()[0] == 0:
+            sql = "INSERT INTO lego_set (set_id, " + ",".join(keys) + ", last_updated) VALUES (" + ",".join(["'{}'"]*(len(keys)+2)) + ")"
+            values = [ set_id ] + list(lego_set_row[key] for key in keys) + [ datetime.now() ]
+            cursor.execute(sql.format(*values))
         else:
-            cursor.execute("INSERT INTO lego_set VALUES ('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}')".format(lego_set_row["set_id"], lego_set_row["name"], lego_set_row["theme"], 
-                                                                                                                            lego_set_row["year"], lego_set_row["pieces"], lego_set_row["availability"], 
-                                                                                                                            lego_set_row["retail"], lego_set_row["value"], datetime.now()))
+            if "value" in keys:
+                sql = "UPDATE lego_set SET value='{}', last_updated='{}' WHERE set_id='{}'"
+                values = [ lego_set_row["value"], datetime.now(), set_id ]
+                cursor.execute(sql.format(*values))
+                
         #UPDATE lego_item
         if lego_item_rows:
-            for lego_item_row in lego_item_rows:
-                cursor.execute("SELECT * FROM lego_item WHERE url='{}'".format(lego_item_row["url"]))
-                if cursor.fetchone():
-                    cursor.execute("UPDATE lego_item SET title='{}', price='{}', last_updated='{}' WHERE url='{}'".format(lego_item_row["title"], lego_item_row["price"], 
-                                                                                                                            datetime.now(), lego_item_row["url"]))
+            for row in lego_item_rows:
+                keys = row.keys()
+                cursor.execute("SELECT * FROM lego_item WHERE url='{}'".format(row["url"]))
+                if not cursor.fetchone():
+                    sql = "INSERT INTO lego_item (set_id, " + ",".join(keys) + ", last_updated) VALUES (" + ",".join(["'{}'"]*(len(keys)+2)) + ")"
+                    values = [ set_id ] + list(row[key] for key in keys) + [ datetime.now() ]
+                    cursor.execute(sql.format(*values))
                 else:
-                    cursor.execute("INSERT INTO lego_item (set_id, title, price, url, last_updated) VALUES ('{}', '{}', '{}', '{}', '{}')".format(lego_item_row['set_id'], lego_item_row['title'],
-                                                                                                                                                    lego_item_row['price'], lego_item_row['url'],
-                                                                                                                                                    datetime.now()))
+                    sql = "UPDATE lego_item SET title='{}', price='{}', last_updated='{}' WHERE url='{}'"
+                    values = [ row["title"], row["price"], datetime.now(), row["url"] ]
+                    cursor.execute(sql.format(*values))
+        
         "DELETE PAST ITEMS"
         cursor.execute("DELETE FROM lego_item WHERE last_updated < NOW() - INTERVAL 1 DAY")
+        
         connection.commit()
         cursor.close()
         connection.close()
