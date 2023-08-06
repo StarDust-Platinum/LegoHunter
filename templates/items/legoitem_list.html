@@ -1,55 +1,55 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container"> 
-    <div class="my-3 p-3 bg-body rounded shadow-sm">
-        <div class="row justify-content-center border-bottom">
-            <div class="d-flex text-body-secondary pt-3">
-                <div class="col-2">
-                    <strong class="text-gray-dark">
-                        LEGO ID
-                    </strong>
-                </div>
-                <div class="col-2">
-                    <strong class="">
-                        Price
-                    </strong>
-                </div>
-                <div class="col-2">
-                    <strong class="">
-                        Title
-                    </strong>
-                </div>
-            </div>
-        </div>
 
-        {% for item in page_obj %}
-        <div class="row justify-content-center border-bottom">
-            <div class="d-flex text-body-secondary pt-3">
-                <div class="col-2">
-                    <p class="text-gray-dark">{{ item.set_id }}</p>
-                </div>
-                <div class="col-2">
-                    <p class="text-danger">¥{{ item.price }}</p>
-                </div>
-                <div class="col-8">
-                    <a href="{{ item.url }}">{{ item.title }}</a>
-                </div>
+<div class="my-3 p-3 bg-body rounded shadow-sm">
+    <div class="row justify-content-center border-bottom">
+        <div class="d-flex text-body-secondary pt-3">
+            <div class="col-2">
+                <strong class="text-gray-dark">
+                    LEGO ID
+                </strong>
+            </div>
+            <div class="col-2">
+                <strong class="">
+                    Price
+                </strong>
+            </div>
+            <div class="col-2">
+                <strong class="">
+                    Title
+                </strong>
             </div>
         </div>
-        {% empty %}
-        <div class="row justify-content-center">
-            <div class="col-10">
-                <div class="d-flex text-body-secondary pt-3">
-                    <p class="pb-3 mb-0 small lh-sm border-bottom">
-                        <strong class="d-block text-gray-dark">No item on sale</strong>
-                    </p>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
     </div>
+
+    {% for item in page_obj %}
+    <div class="row justify-content-center border-bottom">
+        <div class="d-flex text-body-secondary pt-3">
+            <div class="col-2">
+                <p class="text-gray-dark">{{ item.set_id }}</p>
+            </div>
+            <div class="col-2">
+                <p class="text-danger">¥{{ item.price }}</p>
+            </div>
+            <div class="col-8">
+                <a href="{{ item.url }}">{{ item.title }}</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="row justify-content-center">
+        <div class="col-10">
+            <div class="d-flex text-body-secondary pt-3">
+                <p class="pb-3 mb-0 small lh-sm border-bottom">
+                    <strong class="d-block text-gray-dark">No item on sale</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
 </div>
+
 
 <nav aria-label="Page navigation example">
     <div class="container"> 
