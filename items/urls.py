@@ -3,4 +3,5 @@ from . import views
 
 urlpatterns = [
     path('', views.LegoItemListView.as_view()),
+    path('search/', views.search, name="search")
 ]
