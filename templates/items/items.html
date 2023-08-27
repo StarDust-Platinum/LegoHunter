@@ -1,6 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class="bg-body p-5 rounded">
+    <div class="d-flex flex-column flex-md-row p-4 gap-4 py-md-5 align-items-center justify-content-center">
+        <ul class="dropdown-menu position-static d-grid gap-1 p-2 rounded-3 mx-0 shadow w-220px" data-bs-theme="light">
+            {% block url %}
+            <li><a class="dropdown-item rounded-2" href="?sort=price&order=asc">Price: Low to High</a></li>
+            <li><a class="dropdown-item rounded-2" href="?sort=price&order=desc">Price: High to Low</a></li>
+            {% endblock %}
+        </ul>
+    </div>
+</div>
+
 <div class="my-3 p-3 bg-body rounded shadow-sm">
     <div class="row justify-content-center border-bottom">
         <div class="d-flex text-body-secondary pt-3">
@@ -11,7 +22,7 @@
             </div>
             <div class="col-2">
                 <strong class="">
-                    Price
+                    Pirce
                 </strong>
             </div>
             <div class="col-2">
