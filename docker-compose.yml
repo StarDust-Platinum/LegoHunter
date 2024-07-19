@@ -1,0 +1,62 @@
+version: "1"
+
+services:
+  selenium:
+    image: selenium/standalone-chrome:latest
+    container_name: selenium
+    networks:
+      lego:
+    ports:
+      - 4444:4444
+      - 7900:7900
+
+  mysql:
+    image: mysql:8.0.38
+    container_name: mysql
+    networks:
+      lego:
+    ports:
+      - 3306:3306
+    #volumes:
+    #  - ./mysql/data:/var/lib/mysql
+    #  - ./mysql/conf.d/mysql.cnf:/etc/mysql/conf.d/mysql.cnf
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      TZ: 'UTC'
+    healthcheck:
+        test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+        timeout: 3s
+        retries: 3
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci 
+
+  legohunter:
+    build: ./LegoHunter
+    container_name: legohunter
+    networks:
+      lego:
+    ports:
+      - 8000:8000
+    depends_on:
+      mysql:
+        condition: service_healthy
+    command: /bin/sh -c "echo "makemigrations" && python3 manage.py makemigrations LegoItems && echo "migrate" && python3 manage.py migrate LegoItems && echo "runserver" && python3 manage.py runserver 0.0.0.0:8000"
+
+  legospider:
+    build: ./LegoSpider
+    container_name: legospider
+    networks:
+      lego:
+    command: /bin/sh -c "sleep 10 && cron -f"
+    depends_on:
+      legohunter:
+        condition: service_started
+      selenium:
+        condition: service_started
+      mysql:
+        condition: service_healthy
+
+networks:
+  lego:

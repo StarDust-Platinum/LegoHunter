@@ -17,7 +17,7 @@
         <div class="d-flex text-body-secondary pt-3">
             <div class="col-2">
                 <strong class="text-gray-dark">
-                    LEGO ID
+                    Set_number
                 </strong>
             </div>
             <div class="col-2">
@@ -26,6 +26,11 @@
                 </strong>
             </div>
             <div class="col-2">
+                <strong class="">
+                    Site
+                </strong>
+            </div>
+            <div class="col-6">
                 <strong class="">
                     Title
                 </strong>
@@ -37,12 +42,15 @@
     <div class="row justify-content-center border-bottom">
         <div class="d-flex text-body-secondary pt-3">
             <div class="col-2">
-                <p class="text-gray-dark">{{ item.set_id }}</p>
+                <p class="text-gray-dark">{{ item.set_number }}</p>
             </div>
             <div class="col-2">
                 <p class="text-danger">¥{{ item.price }}</p>
             </div>
-            <div class="col-8">
+            <div class="col-2">
+                <p class="text-danger">{{ item.site }}</p>
+            </div>
+            <div class="col-6">
                 <a href="{{ item.url }}">{{ item.title }}</a>
             </div>
         </div>
@@ -52,7 +60,7 @@
         <div class="col-10">
             <div class="d-flex text-body-secondary pt-3">
                 <p class="pb-3 mb-0 small lh-sm border-bottom">
-                    <strong class="d-block text-gray-dark">No item on sale</strong>
+                    <strong class="d-block text-gray-dark">No items</strong>
                 </p>
             </div>
         </div>
