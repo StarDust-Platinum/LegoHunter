@@ -17,9 +17,9 @@ services:
       lego:
     ports:
       - 3306:3306
-    #volumes:
-    #  - ./mysql/data:/var/lib/mysql
-    #  - ./mysql/conf.d/mysql.cnf:/etc/mysql/conf.d/mysql.cnf
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/conf.d:/etc/mysql/conf.d
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
@@ -28,8 +28,8 @@ services:
       TZ: 'UTC'
     healthcheck:
         test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
-        timeout: 3s
-        retries: 3
+        timeout: 5s
+        retries: 5
     command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci 
 
   legohunter:

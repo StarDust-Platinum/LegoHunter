@@ -103,7 +103,6 @@ ENV/
 # CUSTOM
 config.json
 db.sqlite3
-settings.py
-settings.py.backup
 __pycache__/
 migrations/
+config.py
