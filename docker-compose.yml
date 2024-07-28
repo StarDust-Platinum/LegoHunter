@@ -1,4 +1,4 @@
-version: "1"
+version: "1.1"
 
 services:
   selenium:
@@ -42,14 +42,16 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
-    command: /bin/sh -c "echo "makemigrations" && python3 manage.py makemigrations LegoItems && echo "migrate" && python3 manage.py migrate LegoItems && echo "runserver" && python3 manage.py runserver 0.0.0.0:8000"
+    command: /bin/sh -c "python3 manage.py makemigrations LegoItems && python3 manage.py migrate LegoItems && gunicorn LegoHunter.wsgi:application --bind 0.0.0.0:8000"
 
   legospider:
     build: ./LegoSpider
     container_name: legospider
     networks:
       lego:
-    command: /bin/sh -c "sleep 10 && cron -f"
+    volumes:
+      - ./LegoSpider/crontabs:/var/spool/cron/crontabs
+    command: /bin/sh -c "crontab /var/spool/cron/crontabs/crontab && cron -f"
     depends_on:
       legohunter:
         condition: service_started
@@ -57,6 +59,19 @@ services:
         condition: service_started
       mysql:
         condition: service_healthy
+
+  nginx:
+    image: nginx:1.27.0-alpine
+    container_name: nginx
+    networks:
+      lego:
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/static:/static
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    depends_on:
+      - legohunter
 
 networks:
   lego:

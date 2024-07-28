@@ -106,3 +106,5 @@ db.sqlite3
 __pycache__/
 migrations/
 config.py
+mysql/data/
+root

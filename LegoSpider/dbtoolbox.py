@@ -14,8 +14,8 @@ def config2connection(config):
 
 def db_init(config):
     connection = config2connection(config)
-    sql = "CREATE TABLE IF NOT EXISTS lego_items(item_number INT UNSIGNED AUTO_INCREMENT, \
-        set_number  INT UNSIGNED, \
+    sql = "CREATE TABLE IF NOT EXISTS LegoItems_legoitems(item_number INT UNSIGNED AUTO_INCREMENT, \
+        set_number INT UNSIGNED, \
         title VARCHAR(255), \
         price INT UNSIGNED, \
         site VARCHAR(255), \
