@@ -1,19 +1,19 @@
 import pymysql.cursors
+import os
 
-
-def config2connection(config):
+def config2connection():
     connection = pymysql.connect(
-        host=config["host"],
-        user=config["user"],
-        password=config["password"],
-        database=config["database"],
+        host = os.getenv("DATABASE_HOST"),
+        user = os.getenv("DATABASE_USER"),
+        password = os.getenv("DATABASE_PASSWORD"),
+        database = os.getenv("DATABASE_NAME"),
         charset='utf8mb4',
         cursorclass=pymysql.cursors.DictCursor)
     return connection
 
 
-def db_init(config):
-    connection = config2connection(config)
+def db_init():
+    connection = config2connection()
     sql = "CREATE TABLE IF NOT EXISTS LegoItems_legoitems(item_number INT UNSIGNED AUTO_INCREMENT, \
         set_number INT UNSIGNED, \
         title VARCHAR(255), \
@@ -31,7 +31,7 @@ def db_init(config):
 
 
 def db_select(config, attr, value, operator):
-    connection = config2connection(config)
+    connection = config2connection()
     table = config["table"]
     sql = "SELECT * FROM {} WHERE {}{}{}".format(table, attr, operator, value)
             
@@ -43,7 +43,7 @@ def db_select(config, attr, value, operator):
 
 
 def db_insert(config, record):
-    connection = config2connection(config)
+    connection = config2connection()
     table = config["table"]
     attrs = record.keys()
     values = [ record[attr] for attr in attrs ]
@@ -58,7 +58,7 @@ def db_insert(config, record):
 
 
 def db_update(config, record, attr, value, operator):
-    connection = config2connection(config)
+    connection = config2connection()
     table = config["table"]
     attrs = record.keys()
     attr_value_pairs = [ attr + "=" + record[attr] for attr in attrs]
@@ -73,7 +73,7 @@ def db_update(config, record, attr, value, operator):
 
 
 def db_delete(config, attr, value, operator):
-    connection = config2connection(config)
+    connection = config2connection()
     table = config["table"]
     sql = "DELETE FROM {} WHERE {}{}{}".format(table, attr, operator, value)
             

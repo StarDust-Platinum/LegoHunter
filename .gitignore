@@ -101,10 +101,9 @@ ENV/
 .mypy_cache/
 
 # CUSTOM
-config.json
-db.sqlite3
 __pycache__/
 migrations/
-config.py
+db.sqlite3
 mysql/data/
+config.json
 root

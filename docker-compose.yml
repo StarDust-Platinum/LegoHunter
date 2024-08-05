@@ -21,10 +21,8 @@ services:
       - ./mysql/data:/var/lib/mysql
       - ./mysql/conf.d:/etc/mysql/conf.d
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_NAME}
       TZ: 'UTC'
     healthcheck:
         test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
@@ -39,6 +37,10 @@ services:
       lego:
     ports:
       - 8000:8000
+    env_file:
+      - .env
+    volumes:
+      - static:/static
     depends_on:
       mysql:
         condition: service_healthy
@@ -68,10 +70,13 @@ services:
     ports:
       - 80:80
     volumes:
-      - ./nginx/static:/static
+      - static:/static
       - ./nginx/conf.d:/etc/nginx/conf.d
     depends_on:
       - legohunter
 
 networks:
   lego:
+
+volumes:
+  static:

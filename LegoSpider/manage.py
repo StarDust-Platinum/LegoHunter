@@ -11,7 +11,7 @@ if __name__=="__main__":
     sites = config.pop("sites")
     set_numbers = config.pop("set_numbers")
 
-    #db_init(config)
+    #db_init()
 
     for set_number in set_numbers:
         for site in sites.keys():
@@ -22,4 +22,4 @@ if __name__=="__main__":
                         db_update(config, record, "url", record["url"], "=")
                     else:
                         db_insert(config, record)
-    db_delete(config, "date_modified", "NOW() - INTERVAL 1 DAY", "<")
+    #db_delete(config, "date_modified", "NOW() - INTERVAL 1 DAY", "<")
