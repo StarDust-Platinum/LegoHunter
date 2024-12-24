@@ -1,1 +1,0 @@
-0 */6 * * * /usr/local/bin/python3 /app/manage.py >> /var/log/cron.log 2>&1

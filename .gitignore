@@ -104,6 +104,6 @@ ENV/
 __pycache__/
 migrations/
 db.sqlite3
-mysql/data/
+mysql/
 config.json
-root
+export.sh

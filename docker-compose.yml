@@ -20,15 +20,13 @@ services:
     volumes:
       - ./mysql/data:/var/lib/mysql
       - ./mysql/conf.d:/etc/mysql/conf.d
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DATABASE_PASSWORD}
-      MYSQL_DATABASE: ${DATABASE_NAME}
-      TZ: 'UTC'
+    env_file:
+      - .env
     healthcheck:
         test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
         timeout: 5s
         retries: 5
-    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci 
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
   legohunter:
     build: ./LegoHunter
@@ -36,31 +34,26 @@ services:
     networks:
       lego:
     ports:
-      - 8000:8000
+      - 5000:5000
     env_file:
       - .env
     volumes:
       - static:/static
+    command: /bin/sh -c "cd /app && flask db init && flask db migrate && flask db upgrade && gunicorn legohunter:app --bind 0.0.0.0:8000"
     depends_on:
-      mysql:
-        condition: service_healthy
-    command: /bin/sh -c "python3 manage.py makemigrations LegoItems && python3 manage.py migrate LegoItems && gunicorn LegoHunter.wsgi:application --bind 0.0.0.0:8000"
-
-  legospider:
-    build: ./LegoSpider
-    container_name: legospider
-    networks:
-      lego:
-    volumes:
-      - ./LegoSpider/crontabs:/var/spool/cron/crontabs
-    command: /bin/sh -c "crontab /var/spool/cron/crontabs/crontab && cron -f"
-    depends_on:
-      legohunter:
-        condition: service_started
       selenium:
         condition: service_started
       mysql:
         condition: service_healthy
+
+  autoadministrator:
+    build: ./AutoAdministrator
+    container_name: autoadministrator
+    volumes:
+      - ./AutoAdministrator/crontabs:/var/spool/cron/crontabs
+    networks:
+      lego:
+    command: /bin/sh -c "crontab /var/spool/cron/crontabs/crontab && cron -f"
 
   nginx:
     image: nginx:1.27.0-alpine
