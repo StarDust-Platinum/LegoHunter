@@ -12,44 +12,59 @@
             {{ bootstrap.load_css() }}
         {% endblock %}
 
-        <title>LegoHunter</title>
+        <title>{% block title %}LegoHunter{% endblock %}</title>
         {% endblock %}
     </head>
 
     <body class="d-flex flex-column h-100">
-        <header>
-            <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-danger">
-                <div class="container-fluid">
-                <a class="navbar-brand" href="/">LegoHunter</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarCollapse">
-                    <ul class="navbar-nav me-auto mb-2 mb-md-0">
-                        <li class="nav-item">
-                            <a class="nav-link active" aria-current="page" href="/item">Items</a>
-                        </li>
-                    </ul>
-                    <form class="d-flex" role="search" action="">
-                        <input class="form-control me-2" name="kw" type="search" placeholder="Search" aria-label="Search">
-                        <button class="btn btn-warning" type="submit">Search</button>
-                    </form>
-                </div>
-                </div>
-            </nav>
-        </header>
-    
-        <main class="flex-shrink-0">
+        
+        {% block nav %}
+        <header class="p-3 bg-danger text-white">
             <div class="container">
-                {% block content %}{% endblock %}
+              <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                  <h1>LegoHunter</h1>
+                </a>
+        
+                <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                    <li><a href="{{ url_for('main.index') }}" class="nav-link px-2 text-white">Home</a></li>
+                    <li><a href="{{ url_for('item.items') }}" class="nav-link px-2 text-white">Items</a></li>
+                    {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('item.set_price_expectation') }}" class="nav-link px-2 text-white">Expectation</a></li>
+                    {% endif %}
+                    {% if current_user.is_administrator() %}
+                    <li><a href="{{ url_for('item.crawl') }}" class="nav-link px-2 text-white">Crawl</a></li>
+                    {% endif %}
+                </ul>
+        
+            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" method="GET" action="{{ url_for('item.search') }}">
+                <input type="search" class="form-control form-control-dark" placeholder="Search..." aria-label="Search" name="kw">
+            </form>
+    
+            <div class="text-end">
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.user', userid=current_user.id) }}" class="btn btn-warning">Profile</a>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-warning">Log Out</a>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-warning">Log In</a>
+                <a href="{{ url_for('auth.signup') }}" class="btn btn-warning">Sign Up</a>
+                {% endif %}
             </div>
-        </main>
+            </div>
+        </div>
+        </header>
+        {% endblock%}
+    
+        {% block content %}
+        {% endblock %}
 
+        {% block footer %}
         <footer class="footer mt-auto py-3 bg-body-tertiary">
             <div class="container">
-                <span class="text-body-secondary">Copyright © 2023 All rights reserved</span>
+                <span class="text-body-secondary">Copyright © 2024 All rights reserved</span>
             </div>
         </footer>
+        {% endblock %}
 
         {% block scripts %}
             <!-- Optional JavaScript -->

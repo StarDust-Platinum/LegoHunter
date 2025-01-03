@@ -3,8 +3,13 @@ bootstrap-flask
 flask-sqlalchemy
 flask-migrate
 flask-paginate
+flask-login
+email_validator
+
 mysqlclient
+
 requests
 selenium
 BeautifulSoup4
+
 gunicorn

@@ -1,11 +1,10 @@
-import os
-import json
-import math
-from flask import render_template, request, session, redirect, url_for, current_app
+from flask import render_template, redirect, url_for, flash
+from flask_login import login_required, current_user
 from .. import db
-from ..models import Item
+from ..models import Role, User
+from ..decorators import admin_required
 from . import main
-from .sites import *
+from .forms import EditProfileForm, EditProfileAdminForm
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -13,61 +12,41 @@ def index():
     return render_template('index.html')
 
 
-@main.route('/item')
-def item():
-    per_page = 50
-    
-    page = request.args.get('page', 1, type=int)
-    
-    page_max = math.ceil(Item.query.count()/50)
-
-    if page > page_max:
-        return redirect(url_for(".item", page=page_max))
-    
-    pagination = Item.query.order_by(Item.set_number.asc()).paginate(
-        page=page, per_page=per_page, error_out=False)
-    return render_template('item.html', pagination=pagination)
+@main.route('/user/<int:userid>')
+def user(userid):
+    user = User.query.filter_by(id=userid).first_or_404()
+    return render_template('user.html', user=user)
 
 
-@main.route('/crawl')
-def crawl():
-    config_loc = os.getenv("CRAWLER_CONFIG_PATH")
-    with open(config_loc, "r+") as f:
-        config = json.load(f)
-    site_list = config.pop("sites")
-    set_numbers = config.pop("set_numbers")
-    blacklist = config.pop("blacklist")
+@main.route('/edit-profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        db.session.add(current_user._get_current_object())
+        db.session.commit()
+        flash('Your profile has been updated.')
+        return redirect(url_for('.user', userid=current_user.id))
+    form.username.data = current_user.username
+    return render_template('edit_profile.html', form=form, admin=False)
 
-    for set_number in set_numbers.keys():
 
-        if not set_numbers[set_number]:
-            continue
-
-        for site in site_list.keys():
-
-            if not site_list[site]:
-                continue
-            
-            crawler = getattr(globals()[site], site)(blacklist)
-            records = crawler.crawl(set_number)
-            if records:
-                for record in records:
-                    item = Item.query.filter_by(url=record["url"]).first()
-                    if item:
-                        item.set_number = record["set_number"]
-                        item.site = record["site"]
-                        item.title = record["title"]
-                        item.price = record["price"]
-                        item.url = record["url"]
-                        item.date_modified = record["date_modified"]
-                    else:
-                        item = Item()
-                        item.set_number = record["set_number"]
-                        item.site = record["site"]
-                        item.title = record["title"]
-                        item.price = record["price"]
-                        item.url = record["url"]
-                        item.date_modified = record["date_modified"]
-                    db.session.add(item)
-                    db.session.commit()
-    return render_template('crawl.html', text="Crawl is completed")
+@main.route('/edit-profile/<int:id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def edit_profile_admin(id):
+    user = User.query.get_or_404(id)
+    form = EditProfileAdminForm(user=user)
+    if form.validate_on_submit():
+        user.email = form.email.data
+        user.username = form.username.data
+        user.role = Role.query.get(form.role.data)
+        db.session.add(user)
+        db.session.commit()
+        flash('The profile has been updated.')
+        return redirect(url_for('.user', userid=user.id))
+    form.email.data = user.email
+    form.username.data = user.username
+    form.role.data = user.role_id
+    return render_template('edit_profile.html', form=form, user=user)

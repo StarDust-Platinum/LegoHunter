@@ -1,6 +1,0 @@
-{% extends "LegoItems/items.html" %}
-
-{% block url %}
-<li><a class="dropdown-item rounded-2" href="{% url 'search' %}?kw={{ kw }}&sort=price&order=asc">Price: Low to High</a></li>
-<li><a class="dropdown-item rounded-2" href="{% url 'search' %}?kw={{ kw }}&sort=price&order=desc">Price: High to Low</a></li>
-{% endblock %}

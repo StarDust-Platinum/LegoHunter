@@ -34,7 +34,7 @@ services:
     networks:
       lego:
     ports:
-      - 5000:5000
+      - 8000:8000
     env_file:
       - .env
     volumes:

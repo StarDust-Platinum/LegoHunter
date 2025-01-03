@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% from 'bootstrap5/form.html' import render_field %}
+
+{% block title %}Items - LegoHunter{% endblock %}
+
+{% block content %}
+<div class="container px-4 py-5" id="hanging-icons">
+    <h2 class="pb-2 border-bottom">
+        Items on sale
+    </h2>
+    <div class="table-responsive">
+        <table class="table table-striped table-sm">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Site</th>
+                    <th scope="col">Title</th>
+                </tr>
+            </thead>
+            <tbody> 
+                {% for item in pagination.items %}                
+                <tr>
+                    <td>{{ item.set_number }}</td>
+                    <td>¥{{ item.price }}</td>
+                    <td>{{ item.site }}</td>
+                    <td><a href="{{ item.url }}">{{ item.title }}</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <nav aria-label="Page navigation example">
+        <div class="container"> 
+            <div class="row justify-content-center border-bottom">
+                <div class="col-4">
+                    <ul class="pagination">
+                        {% if pagination.has_prev %}
+                        <li class="page-item"><a class="page-link text-danger" href="?page=1">&laquo; first</a></li>
+                        <li class="page-item"><a class="page-link text-danger" href="?page={{ pagination.prev_num }}">{{ pagination.prev_num }}</a></li>
+                        {% endif %}
+                        
+                        <li class="page-item active"><a class="page-link bg-danger" href="#">{{ pagination.page }}</a></li>
+                        
+                        {% if pagination.has_next %}
+                        <li class="page-item"><a class="page-link text-danger" href="?page={{ pagination.next_num }}">{{ pagination.next_num }}</a></li>
+                        <li class="page-item"><a class="page-link text-danger" href="?page={{ pagination.pages }}">last &raquo;</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>    
+</div>
+{% endblock %}
