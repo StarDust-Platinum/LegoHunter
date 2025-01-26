@@ -1,10 +1,11 @@
-import math
+import os, math
 from threading import Thread
+import http.client, urllib
 
 from flask import render_template, request, redirect, url_for, flash
 from flask_login import current_user
 from .. import db
-from ..models import Set, Item, PriceExpectation
+from ..models import User, Set, Item, PriceExpectation
 from ..decorators import admin_required
 from . import item
 from .forms import EditSetForm, CrawlConfigForm, SetPriceExpectationForm
@@ -99,7 +100,7 @@ def crawl():
     crawl_config_form = CrawlConfigForm()
     if crawl_config_form.crawl_config_submit.data and crawl_config_form.validate():
         if crawl_config_form.sites.data and crawl_config_form.sets.data:
-            _crawl(crawl_config_form.sites.data, crawl_config_form.sets.data, crawl_config_form.filter_blacklist.data)
+            _crawl(crawl_config_form.sites.data, crawl_config_form.sets.data, crawl_config_form.filter_blacklist.data.split(','))
             #Thread(target=_crawl, args=(crawl_config_form.sites.data, crawl_config_form.sets.data, crawl_config_form.filter_blacklist.data)).start()
             flash("Crawl has started!")
         else:
@@ -107,6 +108,15 @@ def crawl():
         return redirect(url_for(".crawl"))
 
     return render_template('item/crawl.html', edit_set_form=edit_set_form, crawl_config_form=crawl_config_form)
+
+
+@item.route('/crawl-cron')
+def crawl_cron():
+    from .sites import __all__ as site_list
+    set_list = [ str(_.set_number) for _ in Set.query.all() ]
+    filter_blacklist = os.environ.get('FILTER_BLACKLIST').split(',')
+    _crawl(site_list, set_list, filter_blacklist)
+    return "cron job complete!"
 
 
 def _crawl(sites, sets, filter_blacklist):
@@ -146,5 +156,21 @@ def _crawl(sites, sets, filter_blacklist):
 def _send_notification(record):
     for price_expectation in PriceExpectation.query.all():
         if int(price_expectation.set_number)==int(record["set_number"]) and int(price_expectation.price_expectation)>=int(record["price"]):
-            #sendemail()
-            print(f"send email to user{price_expectation.user_id} content {price_expectation.set_number} price is {record['price']}")
+            APP_TOKEN = os.environ.get('APP_TOKEN')
+            USER_KEY = User.query.filter_by(id = price_expectation.user_id).first().userkey
+            MESSAGE = f"{record['set_number']}: {record['price']}"
+            URL = record["url"]
+            if USER_KEY:
+                _pushover(APP_TOKEN, USER_KEY, MESSAGE, URL)
+
+
+def _pushover(APP_TOKEN, USER_KEY, MESSAGE, URL):
+    conn = http.client.HTTPSConnection("api.pushover.net:443")
+    conn.request("POST", "/1/messages.json",
+    urllib.parse.urlencode({
+        "token": APP_TOKEN,
+        "user": USER_KEY,
+        "message": MESSAGE,
+        "url": URL,
+    }), { "Content-type": "application/x-www-form-urlencoded" })
+    conn.getresponse()

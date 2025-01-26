@@ -4,6 +4,7 @@ flask-sqlalchemy
 flask-migrate
 flask-paginate
 flask-login
+flask-wtf
 email_validator
 
 mysqlclient

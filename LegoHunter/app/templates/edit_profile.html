@@ -12,6 +12,7 @@
         <form method="post">
             {{ form.csrf_token() }}
             {{ render_field(form.username) }}
+            {{ render_field(form.userkey) }}
             
             {% if user %}
             {{ render_field(form.email) }}

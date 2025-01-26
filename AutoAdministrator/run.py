@@ -1,6 +1,6 @@
 import requests
 
-url = "http://legohunter:5000/crawl"
+url = "http://nginx/item/crawl-cron"
 try:
     requests.get(url)
 except:

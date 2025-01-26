@@ -9,6 +9,7 @@ class EditProfileForm(FlaskForm):
         DataRequired(), 
         Length(1, 64),
         Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0, 'Usernames must have only letters, numbers, dots or underscores')])
+    userkey = StringField('Userkey')
     submit = SubmitField('Submit')
 
 
@@ -18,6 +19,7 @@ class EditProfileAdminForm(FlaskForm):
         DataRequired(), 
         Length(1, 64),
         Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0, 'Usernames must have only letters, numbers, dots or underscores')])
+    userkey = StringField('Userkey')
     role = SelectField('Role', coerce=int)
     submit = SubmitField('Submit')
 

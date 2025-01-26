@@ -12,7 +12,7 @@ __all__ = [ basename(f)[:-3] for f in modules if isfile(f) and not f.endswith('_
 
 class Site:
     def __init__(self, filter_blacklist):
-        self.blacklist = filter_blacklist.split(',')
+        self.blacklist = filter_blacklist
 
     def url2html(self, url, method="requests"):
         if method == "requests":

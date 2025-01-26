@@ -21,7 +21,7 @@ services:
       - ./mysql/data:/var/lib/mysql
       - ./mysql/conf.d:/etc/mysql/conf.d
     env_file:
-      - .env
+      - .env-mysql
     healthcheck:
         test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
         timeout: 5s
@@ -39,7 +39,8 @@ services:
       - .env
     volumes:
       - static:/static
-    command: /bin/sh -c "cd /app && flask db init && flask db migrate && flask db upgrade && gunicorn legohunter:app --bind 0.0.0.0:8000"
+    command: /bin/sh -c "cd /app && if [ ! -d migrations ]; then flask db init && flask db migrate && flask db upgrade; fi && gunicorn legohunter:app --bind 0.0.0.0:8000"
+
     depends_on:
       selenium:
         condition: service_started

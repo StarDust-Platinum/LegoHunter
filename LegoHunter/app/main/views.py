@@ -24,6 +24,7 @@ def edit_profile():
     form = EditProfileForm()
     if form.validate_on_submit():
         current_user.username = form.username.data
+        current_user.userkey = form.userkey.data
         db.session.add(current_user._get_current_object())
         db.session.commit()
         flash('Your profile has been updated.')
@@ -41,6 +42,7 @@ def edit_profile_admin(id):
     if form.validate_on_submit():
         user.email = form.email.data
         user.username = form.username.data
+        user.userkey = form.userkey.data
         user.role = Role.query.get(form.role.data)
         db.session.add(user)
         db.session.commit()

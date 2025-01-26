@@ -69,6 +69,7 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(64), unique=True, index=True)
     password_hash = db.Column(db.String(256))
     username = db.Column(db.String(64))
+    userkey = db.Column(db.String(64))
 
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     last_seen = db.Column(db.DateTime(), default=datetime.utcnow)
@@ -147,8 +148,8 @@ class Set(db.Model):
 
 class Item(db.Model):
     __tablename__ = 'items'
-    set_number = db.Column(db.Integer, primary_key=True)
     id = db.Column(db.Integer, primary_key=True)
+    set_number = db.Column(db.Integer)
     site = db.Column(db.String(255), nullable=False)
     url = db.Column(db.String(2047), nullable=False)
     title = db.Column(db.String(255), nullable=False)

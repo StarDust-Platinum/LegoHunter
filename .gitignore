@@ -108,3 +108,4 @@ db.sqlite3
 mysql/
 config.json
 env.sh
+root

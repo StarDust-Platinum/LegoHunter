@@ -1,3 +1,5 @@
+import os
+
 from flask_wtf import FlaskForm
 from wtforms import StringField, RadioField, SubmitField, SelectMultipleField, widgets
 from ..models import Set
@@ -23,7 +25,7 @@ class MultiCheckboxField(SelectMultipleField):
 
     
 class CrawlConfigForm(FlaskForm):
-    filter_blacklist_default = "说明书,图纸,兼容,互換,LED,展示盒,ケース"
+    filter_blacklist_default = os.environ.get('FILTER_BLACKLIST')
 
     sites = MultiCheckboxField('Sites')
     sets = MultiCheckboxField('Sets')
