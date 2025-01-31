@@ -141,6 +141,7 @@ class Set(db.Model):
     __tablename__ = 'sets'
     set_number = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
+    value = db.Column(db.Integer)
     
     def __repr__(self):
         return f"<Set {self.set_number}>"

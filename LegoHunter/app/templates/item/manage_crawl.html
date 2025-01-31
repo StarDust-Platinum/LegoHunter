@@ -13,25 +13,14 @@
 <div class="container px-4 py-5" id="hanging-icons">
     {% if current_user.is_administrator() %}
     <h2 class="pb-2 border-bottom">
-        Edit sets
-    </h2>
-    <form method="post">
-        {{ edit_set_form.csrf_token() }}
-        {{ render_field(edit_set_form.operation) }}
-        {{ render_field(edit_set_form.set_number) }}
-        {{ render_field(edit_set_form.name) }}
-        {{ render_field(edit_set_form.edit_set_submit) }}
-    </form>
-    <br>
-    <h2 class="pb-2 border-bottom">
-        Crawl Config
+        Manage Crawl
     </h2>
     <form method="post">
         {{ crawl_config_form.csrf_token() }}
         {{ render_field(crawl_config_form.sites) }}
         {{ render_field(crawl_config_form.sets) }}
         {{ render_field(crawl_config_form.filter_blacklist) }}
-        {{ render_field(crawl_config_form.crawl_config_submit) }}
+        {{ render_field(crawl_config_form.submit, button_style='warning') }}
     </form>
     {% endif %}
 </div>

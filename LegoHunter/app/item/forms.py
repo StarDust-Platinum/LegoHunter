@@ -1,22 +1,23 @@
 import os
 
 from flask_wtf import FlaskForm
-from wtforms import StringField, RadioField, SubmitField, SelectMultipleField, widgets
+from wtforms import StringField, SubmitField, SelectMultipleField, widgets
 from ..models import Set
 from .sites import __all__ as site_list
 
 
 class SetPriceExpectationForm(FlaskForm):
-    set_number = StringField('#')
-    price_expectation = StringField('JPY')
-    submit = SubmitField('Submit')
+    set_number = StringField('')
+    price_expectation = StringField('')
+    add = SubmitField('Add')
+    delete = SubmitField('Delete')
 
 
 class EditSetForm(FlaskForm):
-    set_number = StringField('#')
-    name = StringField('name')
-    operation = RadioField('operation', choices=[('Add/Update', 'Add/Update'), ('Delete', 'Delete')], default='Add/Update')
-    edit_set_submit = SubmitField('Submit')
+    set_number = StringField('')
+    name = StringField('')
+    add = SubmitField('Add')
+    delete = SubmitField('Delete')
 
 
 class MultiCheckboxField(SelectMultipleField):
@@ -30,7 +31,7 @@ class CrawlConfigForm(FlaskForm):
     sites = MultiCheckboxField('Sites')
     sets = MultiCheckboxField('Sets')
     filter_blacklist = StringField('Filter out', default=filter_blacklist_default)
-    crawl_config_submit = SubmitField('Submit')
+    submit = SubmitField('Submit')
 
     def __init__(self):
         super(CrawlConfigForm, self).__init__()

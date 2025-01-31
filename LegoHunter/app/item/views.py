@@ -3,7 +3,7 @@ from threading import Thread
 import http.client, urllib
 
 from flask import render_template, request, redirect, url_for, flash
-from flask_login import current_user
+from flask_login import login_required, current_user
 from .. import db
 from ..models import User, Set, Item, PriceExpectation
 from ..decorators import admin_required
@@ -47,72 +47,113 @@ def items():
 
 
 @item.route('/set-price-expectation', methods=['GET', 'POST'])
+@login_required
 def set_price_expectation():
     if current_user.is_anonymous:
         return redirect(url_for("auth.login"))
     
-    form = SetPriceExpectationForm()
-    if form.validate_on_submit():
-        existing_expectation = PriceExpectation.query.filter_by(user_id=current_user.id, set_number=form.set_number.data).first()
-        if existing_expectation:
-            existing_expectation.price_expectation = form.price_expectation.data
-            db.session.add(existing_expectation)
-        else:
-            new_expectation = PriceExpectation()
-            new_expectation.user_id = current_user.id
-            new_expectation.set_number = form.set_number.data
-            new_expectation.price_expectation = form.price_expectation.data
-            db.session.add(new_expectation)
-        db.session.commit()
-    expectations = PriceExpectation.query.filter_by(user_id=current_user.id)
-    return render_template("item/set_price_expectation.html", form=form, expectations=expectations)
+    blank_form = SetPriceExpectationForm()
+    forms = [ blank_form ]
+    expectations = PriceExpectation.query.filter_by(user_id=current_user.id).all()
+    for exp in expectations:
+        form = SetPriceExpectationForm()
+        form.set_number.data = exp.set_number
+        form.price_expectation.data = exp.price_expectation
+        forms.append(form)
+
+    for form in forms:
+        if form.add.data and form.validate_on_submit():
+            if form.set_number.data=='':
+                flash('Plese Fill in the #')
+                return redirect(url_for('.set_price_expectation'))
+            else:
+                existing_expectation = PriceExpectation.query.filter_by(user_id=current_user.id, set_number=form.set_number.data).first()
+            if existing_expectation:
+                existing_expectation.price_expectation = form.price_expectation.data
+                db.session.add(existing_expectation)
+            else:
+                new_expectation = PriceExpectation()
+                new_expectation.user_id = current_user.id
+                new_expectation.set_number = form.set_number.data
+                new_expectation.price_expectation = form.price_expectation.data
+                db.session.add(new_expectation)
+            db.session.commit()
+        if form.delete.data and form.validate_on_submit():
+            if form.set_number.data=='':
+                flash('Plese Fill in the #')
+                return redirect(url_for('.set_price_expectation'))
+            else:
+                existing_expectation = PriceExpectation.query.filter_by(user_id=current_user.id, set_number=form.set_number.data).first()
+            if existing_expectation:
+                db.session.delete(existing_expectation)
+                db.session.commit()
+            else:
+                flash('Expectation not set!')
+    return render_template("item/set_price_expectation.html", forms=forms)
 
 
-@item.route('/crawl', methods=['GET', 'POST'])
+@item.route('/manage-set', methods=['GET', 'POST'])
 @admin_required
-def crawl():
-    edit_set_form = EditSetForm()
-    if edit_set_form.edit_set_submit.data and edit_set_form.validate():
-        existing_set = Set.query.filter_by(set_number=edit_set_form.set_number.data).first()
-        
-        if edit_set_form.set_number.data=='':
-            flash('Plese Fill in the #')
-        elif edit_set_form.operation.data == 'Add/Update':
+def manage_set():
+    blank_form = EditSetForm()
+    forms = [ blank_form ]
+    sets = Set.query.all()
+    for s in sets:
+        form = EditSetForm()
+        form.set_number.data = s.set_number
+        form.name.data = s.name
+        forms.append(form)
+
+    for form in forms:
+        if form.add.data and form.validate():
+            if form.set_number.data=='':
+                flash('Plese Fill in the #')
+                return redirect(url_for(".manage_set"))
+            else:
+                existing_set = Set.query.filter_by(set_number=form.set_number.data).first()
             if existing_set:
-                existing_set.name = edit_set_form.name.data
+                existing_set.name = form.name.data
                 db.session.add(existing_set)
             else:
                 new_set = Set()
-                new_set.set_number = edit_set_form.set_number.data
-                new_set.name = edit_set_form.name.data
+                new_set.set_number = form.set_number.data
+                new_set.name = form.name.data
                 db.session.add(new_set)
             db.session.commit()
-        elif edit_set_form.operation.data == 'Delete':
+            return redirect(url_for(".manage_set"))
+        if form.delete.data and form.validate():
+            if form.set_number.data=='':
+                flash('Plese Fill in the #')
+                return redirect(url_for(".manage_set"))
+            else:
+                existing_set = Set.query.filter_by(set_number=form.set_number.data).first()
             if existing_set:
                 db.session.delete(existing_set)
                 db.session.commit()
             else:
                 flash('Set not registered!')
-        else:
-            flash('Error')
-        return redirect(url_for(".crawl"))
+            return redirect(url_for(".manage_set"))
+    return render_template('item/manage_set.html', forms=forms)
 
+
+@item.route('/manage-crawl', methods=['GET', 'POST'])
+@admin_required
+def manage_crawl():
     crawl_config_form = CrawlConfigForm()
-    if crawl_config_form.crawl_config_submit.data and crawl_config_form.validate():
+    if crawl_config_form.submit.data and crawl_config_form.validate():
         if crawl_config_form.sites.data and crawl_config_form.sets.data:
             _crawl(crawl_config_form.sites.data, crawl_config_form.sets.data, crawl_config_form.filter_blacklist.data.split(','))
             #Thread(target=_crawl, args=(crawl_config_form.sites.data, crawl_config_form.sets.data, crawl_config_form.filter_blacklist.data)).start()
             flash("Crawl has started!")
         else:
             flash('Sites or sets not selected!')
-        return redirect(url_for(".crawl"))
+        return redirect(url_for(".manage_crawl"))
+    return render_template('item/manage_crawl.html', crawl_config_form=crawl_config_form)
 
-    return render_template('item/crawl.html', edit_set_form=edit_set_form, crawl_config_form=crawl_config_form)
 
-
-@item.route('/crawl-cron')
+@item.route('/crawl-cron', methods=['POST'])
 def crawl_cron():
-    from .sites import __all__ as site_list
+    site_list = request.json["site_list"]
     set_list = [ str(_.set_number) for _ in Set.query.all() ]
     filter_blacklist = os.environ.get('FILTER_BLACKLIST').split(',')
     _crawl(site_list, set_list, filter_blacklist)

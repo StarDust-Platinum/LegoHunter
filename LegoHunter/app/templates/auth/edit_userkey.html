@@ -1,26 +1,18 @@
 {% extends "base.html" %}
 {% from 'bootstrap5/form.html' import render_field %}
 
-{% block title %}Change Email - LegoHunter{% endblock %}
+{% block title %}Edit Profile - LegoHunter{% endblock %}
 
 {% block content %}
-
-{% for message in get_flashed_messages() %}
-<div class="alert alert-warning"> 
-    {{ message }} 
-</div>
-{% endfor %}
-
 <div class="container px-4 py-5" id="hanging-icons">
     <h2 class="pb-2 border-bottom">
-        Change Email
+        Edit Userkey
     </h2>
     <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
         <form method="post">
             {{ form.csrf_token() }}
-            {{ render_field(form.email) }}
-            {{ render_field(form.password) }}
-            {{ render_field(form.submit) }}
+            {{ render_field(form.userkey) }}            
+            {{ render_field(form.submit, button_style='warning') }}
         </form>
     </div>
 </div>

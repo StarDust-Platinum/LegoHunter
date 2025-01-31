@@ -6,20 +6,13 @@
 {% block content %}
 <div class="container px-4 py-5" id="hanging-icons">
     <h2 class="pb-2 border-bottom">
-        Edit Profile
+        Edit Username
     </h2>
     <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
         <form method="post">
             {{ form.csrf_token() }}
-            {{ render_field(form.username) }}
-            {{ render_field(form.userkey) }}
-            
-            {% if user %}
-            {{ render_field(form.email) }}
-            {{ render_field(form.role) }}
-            {% endif %}
-            
-            {{ render_field(form.submit) }}
+            {{ render_field(form.username) }}           
+            {{ render_field(form.submit, button_style='warning') }}
         </form>
     </div>
 </div>

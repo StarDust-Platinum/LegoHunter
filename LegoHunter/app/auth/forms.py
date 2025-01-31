@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SelectField, ValidationError, SubmitField
 from wtforms.validators import DataRequired, Length, Email, Regexp, EqualTo
 from wtforms import ValidationError
-from ..models import User
+from ..models import Role, User
 
 
 class LoginForm(FlaskForm):
@@ -34,7 +34,7 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Username already in use.')
 
 
-class ChangePasswordForm(FlaskForm):
+class EditPasswordForm(FlaskForm):
     old_password = PasswordField('Old password', validators=[DataRequired()])
     password = PasswordField('New password', validators=[
         DataRequired(), EqualTo('password2', message='Passwords must match.')])
@@ -43,11 +43,46 @@ class ChangePasswordForm(FlaskForm):
     submit = SubmitField('Update Password')
 
 
-class ChangeEmailForm(FlaskForm):
+class EditEmailForm(FlaskForm):
     email = StringField('New Email', validators=[DataRequired(), Length(1, 64), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit = SubmitField('Update Email Address')
 
     def validate_email(self, field):
         if User.query.filter_by(email=field.data.lower()).first():
+            raise ValidationError('Email already registered.')
+
+
+class EditUsernameForm(FlaskForm):
+    username = StringField('Username', validators=[
+        DataRequired(), 
+        Length(1, 64),
+        Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0, 'Usernames must have only letters, numbers, dots or underscores')])
+    userkey = StringField('Userkey')
+    submit = SubmitField('Submit')
+
+
+class EditUserkeyForm(FlaskForm):
+    userkey = StringField('Userkey')
+    submit = SubmitField('Submit')
+
+
+class EditProfileAdminForm(FlaskForm):
+    email = StringField('Email', validators=[DataRequired(), Length(1, 64), Email()])
+    username = StringField('Username', validators=[
+        DataRequired(), 
+        Length(1, 64),
+        Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0, 'Usernames must have only letters, numbers, dots or underscores')])
+    userkey = StringField('Userkey')
+    role = SelectField('Role', coerce=int)
+    submit = SubmitField('Submit')
+
+    def __init__(self, user, *args, **kwargs):
+        super(EditProfileAdminForm, self).__init__(*args, **kwargs)
+        self.role.choices = [(role.id, role.name) for role in Role.query.order_by(Role.name).all()]
+        self.user = user
+
+    def validate_email(self, field):
+        if field.data != self.user.email and \
+                User.query.filter_by(email=field.data).first():
             raise ValidationError('Email already registered.')
