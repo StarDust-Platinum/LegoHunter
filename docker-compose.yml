@@ -38,9 +38,8 @@ services:
     env_file:
       - .env
     volumes:
-      - static:/static
-    command: /bin/sh -c "cd /app && if [ ! -d migrations ]; then flask db init && flask db migrate && flask db upgrade; fi && gunicorn legohunter:app --bind 0.0.0.0:8000"
-
+      - ./LegoHunter/migrations:/app/migrations
+    command: /bin/sh -c "cd /app && if [ -z "$(ls -A /app/migrations)" ]; then flask db init; fi && flask db migrate && flask db upgrade && gunicorn legohunter:app --bind 0.0.0.0:8000"
     depends_on:
       selenium:
         condition: service_started

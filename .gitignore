@@ -104,6 +104,7 @@ ENV/
 # CUSTOM
 __pycache__/
 migrations/
+dev_migrations/
 db.sqlite3
 mysql/
 config.json

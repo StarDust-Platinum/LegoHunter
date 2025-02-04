@@ -5,7 +5,6 @@ from . import Site
 class mercari(Site):
 
     def crawl(self, set_number):
-        return []
         records = []
         page_unprocessed = True
         try:
